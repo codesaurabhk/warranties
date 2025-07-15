@@ -1,6 +1,6 @@
 
 import React, { useMemo, useRef, useState } from "react";
-import "./Warranty.css";
+
 import { BiSolidFilePdf } from "react-icons/bi";
 import { HiOutlineRefresh } from "react-icons/hi";
 import { IoIosArrowUp } from "react-icons/io";
@@ -15,22 +15,21 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { GoChevronDown, GoChevronLeft, GoChevronRight } from "react-icons/go";
 import { FiPlusCircle } from "react-icons/fi";
 import dayjs from "dayjs";
-// import "./GiftCard.css";
+import "./Warranty.css";
 import html2canvas from "html2canvas";
 import { useEffect } from "react";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
 
 const GiftCardData = [
-    { GiftCard: "GFT1110", customer: "Carl Evans", issuedDate: "24 Dec 2024", expiryDate: "24 Jan 2025", amount: "$200", balance: "$100", Status: "Inactive" },
-    { GiftCard: "GFT1110", customer: "Carl Evans", issuedDate: "24 Dec 2024", expiryDate: "24 Jan 2025", amount: "$200", balance: "$100", Status: "Active" },
-    { GiftCard: "GFT1110", customer: "Carl Evans", issuedDate: "24 Dec 2024", expiryDate: "24 Jan 2025", amount: "$200", balance: "$100", Status: "Active" },
-    { GiftCard: "GFT1109", customer: "Minerva Rameriz", issuedDate: "10 Dec 2024", expiryDate: "10 Jan 2025", amount: "$300", balance: "$200", Status: "Inactive" },
-    { GiftCard: "GFT1109", customer: "Minerva Rameriz", issuedDate: "10 Dec 2024", expiryDate: "10 Jan 2025", amount: "$300", balance: "$200", Status: "Active" },
-    { GiftCard: "GFT1109", customer: "Minerva Rameriz", issuedDate: "10 Dec 2024", expiryDate: "10 Jan 2025", amount: "$300", balance: "$200", Status: "Active" },
-    { GiftCard: "GFT1109", customer: "Minerva Rameriz", issuedDate: "10 Dec 2024", expiryDate: "10 Jan 2025", amount: "$300", balance: "$200", Status: "Active" },
-    { GiftCard: "GFT1107", customer: "Minerva Rameriz", issuedDate: "10 Dec 2024", expiryDate: "10 Jan 2025", amount: "$300", balance: "$200", Status: "Active" },
-    { GiftCard: "GFT1109", customer: "Minerva Rameriz", issuedDate: "10 Dec 2024", expiryDate: "10 Jan 2025", amount: "$300", balance: "$200", Status: "Inactive" },
+    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
+    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
+    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
+    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
+    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
+    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
+    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
+    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
 ];
 
 
@@ -219,11 +218,25 @@ const Warranty = ({ show, handleClose }) => {
         //     console.error("Error:", err.message);
         // }
     };
+    // const handleEditOpen = (card) => {
+    //     console.log("Selected Gift Card:", card);
+    //     setEditFormData(card);
+    //     setShowEditModal(true);
+    // };
     const handleEditOpen = (card) => {
-        console.log("Selected Gift Card:", card);
-        setEditFormData(card);
+        setEditFormData({
+            id: card.id,
+            giftCard: card.warranty,
+            customer: card.customer || "",
+            issuedDate: card.issuedDate || "",
+            expiryDate: card.expiryDate || "",
+            amount: card.amount || "",
+            balance: card.balance || "",
+            status: card.status === "Active" || card.status === true,
+        });
         setShowEditModal(true);
     };
+
     const handleEditClose = () => {
         setShowEditModal(false);
         setEditFormData({
@@ -431,77 +444,54 @@ const Warranty = ({ show, handleClose }) => {
             </div>
             <Modal show={showModal} onHide={handleCloses} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Gift Card</Modal.Title>
+                    <Modal.Title>Add Warranty</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="giftCard">
                             <Form.Label>
-                                Gift Card <span className="text-danger">*</span>
+                                Warranty <span className="text-danger">*</span>
                             </Form.Label>
                             <Form.Control
                                 type="text"
-                                placeholder="Enter gift card name"
+                                placeholder="Enter warranty "
                                 name="giftCard"
-                                value={formData.giftCard}
+                                value={formData.warranty}
                                 onChange={handleChange}
                             />
-                        </Form.Group>
-
-                        <Form.Group controlId="customer" className="mt-3">
-                            <div className="d-flex justify-content-between align-items-center">
-                                <Form.Label className="mb-0">
-                                    Customer <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Button
-                                    variant="link"
-                                    className="text-warning p-0 text-decoration-none d-flex align-items-center gap-1"
-                                    onClick={() => setShowCustomerModal(true)}
-                                >
-                                    <FiPlusCircle style={{ fontSize: "1.1rem" }} />
-                                    Add New
-                                </Button>
-                            </div>
-                            <Form.Select
-                                name="customer"
-                                value={formData.customer}
-                                onChange={handleChange}
-                                className="mt-1"
-                            >
-                                <option value="">Select</option>
-                                {Customers.map((c) => (
-                                    <option key={c._id} value={c._id}>
-                                        {c.addcustomers}
-                                    </option>
-                                ))}
-                            </Form.Select>
                         </Form.Group>
 
                         <Row className="mt-3">
                             <Col>
                                 <Form.Group controlId="issuedDate">
                                     <Form.Label>
-                                        Issued Date <span className="text-danger">*</span>
+                                        Duration <span className="text-danger">*</span>
                                     </Form.Label>
                                     <Form.Control
-                                        type="date"
-                                        name="issuedDate"
-                                        value={dayjs(formData.issuedDate).format("YYYY-MM-DD")}
+                                        type="number"
+                                        min={1}
+                                        name="duration"
+                                        value={formData.duration}
                                         onChange={handleChange}
+                                        placeholder="e.g. 2"
                                     />
                                 </Form.Group>
                             </Col>
                             <Col>
                                 <Form.Group controlId="expiryDate">
                                     <Form.Label>
-                                        Expiry Date <span className="text-danger">*</span>
+                                        Period <span className="text-danger">*</span>
                                     </Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="expiryDate"
-                                        value={formData.expiryDate}
+                                    <Form.Select
+                                        name="period"
+                                        value={formData.period}
                                         onChange={handleChange}
-                                    />
+                                    >
+                                        <option value="">Select</option>
+                                        <option value="Day">Day(s)</option>
+                                        <option value="Month">Month(s)</option>
+                                        <option value="Year">Year(s)</option>
+                                    </Form.Select>
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -510,29 +500,19 @@ const Warranty = ({ show, handleClose }) => {
                             <Col>
                                 <Form.Group controlId="amount">
                                     <Form.Label>
-                                        Amount <span className="text-danger">*</span>
+                                        Description <span className="text-danger">*</span>
                                     </Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        as="textarea"
                                         name="amount"
+                                        // rows={1}
                                         value={formData.amount}
                                         onChange={handleChange}
                                     />
+
                                 </Form.Group>
                             </Col>
-                            <Col>
-                                <Form.Group controlId="balance">
-                                    <Form.Label>
-                                        Balance <span className="text-danger">*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="balance"
-                                        value={formData.balance}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
-                            </Col>
+
                         </Row>
 
                         <Form.Group
@@ -554,8 +534,8 @@ const Warranty = ({ show, handleClose }) => {
                     <Button variant="dark" onClick={handleClose}>
                         Cancel
                     </Button>
-                    <Button variant="warning" onClick={handleSubmit}>
-                        Add Gift Card
+                    <Button variant="warning text-white" onClick={handleSubmit}>
+                        Add Warranty
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -592,7 +572,7 @@ const Warranty = ({ show, handleClose }) => {
                                     Add New
                                 </Button>
                             </div>
-                            <Form.Select
+                            {/* <Form.Select
                                 name="customer"
                                 value={editFormData.customer}
                                 onChange={(e) =>
@@ -606,7 +586,7 @@ const Warranty = ({ show, handleClose }) => {
                                         {c.addcustomers}
                                     </option>
                                 ))}
-                            </Form.Select>
+                            </Form.Select> */}
                         </Form.Group>
 
                         <Row className="mt-3">
@@ -713,60 +693,7 @@ const Warranty = ({ show, handleClose }) => {
                 </Modal.Footer>
             </Modal>
 
-            <Modal
-                show={showCustomerModal}
-                onHide={() => setShowCustomerModal(false)}
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Customer</Modal.Title>
-                </Modal.Header>
 
-                <Modal.Body>
-                    <Form
-                        id="addCustomerForm"
-                        onSubmit={async (e) => {
-                            e.preventDefault();
-
-
-                            const name = e.target.addcustomers.value.trim();
-                            if (!name) return;
-
-                            try {
-                                const res = await fetch("http://localhost:5000/api/customers/", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ addcustomers: name }),
-                                });
-                                const saved = await res.json();
-
-                                setFormData((prev) => ({ ...prev, customer: saved._id }));
-
-                                setShowCustomerModal(false);
-                            } catch (err) {
-                                console.error(err);
-                                alert("Couldn’t add customer. Please try again.");
-                            }
-                        }}
-                    >
-                        <Form.Group controlId="customer">
-                            <Form.Label>
-                                Customer <span className="text-danger">*</span>
-                            </Form.Label>
-                            <Form.Control name="addcustomers" placeholder="Enter customer name" />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-
-                <Modal.Footer>
-                    <Button variant="dark" onClick={() => setShowCustomerModal(false)}>
-                        Cancel
-                    </Button>
-                    <Button variant="warning" type="submit" form="addCustomerForm" >
-                        Add Customer
-                    </Button>
-                </Modal.Footer>
-            </Modal>
 
             <div className="container-mn">
                 <div className="d-flex justify-content-between align-items-center p-3 ">
@@ -802,12 +729,12 @@ const Warranty = ({ show, handleClose }) => {
                                 <th scope="col">
                                     <input type="checkbox" />
                                 </th>
-                                <th scope="col">Gift Card</th>
-                                <th scope="col">Customer</th>
-                                <th scope="col">Issued Date</th>
-                                <th scope="col">Expiry Date</th>
+                                <th scope="col">Warranty</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Duration</th>
+                                {/* <th scope="col">Expiry Date</th>
                                 <th scope="col">Amount</th>
-                                <th scope="col">Balance</th>
+                                <th scope="col">Balance</th> */}
                                 <th scope="col">Status</th>
                                 <th></th>
                             </tr>
@@ -822,13 +749,12 @@ const Warranty = ({ show, handleClose }) => {
                                         <th scope="col">
                                             <input type="checkbox" />
                                         </th>
-                                        <td>{item.GiftCard}</td>
+                                        <td>{item.warranty}</td>
                                         {/* <td>{getCustomerName(item.customer)}</td> */}
-                                        <td>{item.customer}</td>
-                                        <td>{dayjs(item.issuedDate).format("YYYY-MM-DD")}</td>
-                                        <td>{dayjs(item.expiryDate).format("YYYY-MM-DD")}</td>
-                                        <td>{item.amount}</td>
-                                        <td>{item.balance}</td>
+                                        <td>{item.description}</td>
+                                        {/* <td>{dayjs(item.issuedDate).format("YYYY-MM-DD")}</td>
+                                        <td>{dayjs(item.expiryDate).format("YYYY-MM-DD")}</td> */}
+                                        <td>{`${item.duration} ${item.period}`}</td>
                                         <td>
                                             <span
                                                 className={`badge ${item.Status == "Active" ? "badge-success" : "badge-danger"
