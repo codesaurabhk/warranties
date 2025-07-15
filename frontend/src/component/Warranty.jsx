@@ -22,14 +22,14 @@ import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
 
 const GiftCardData = [
-    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
-    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
-    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
-    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
-    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
-    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
-    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
-    { warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
+    { id: "1", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Inactive" },
+    { id: "2", warranty: "On-site Warranty", description: "cover replacement faulty items", duration: "2 years", Status: "Inactive" },
+    { id: "3", warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
+    { id: "4", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Inactive" },
+    { id: "5", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Inactive" },
+    { id: "6", warranty: "On-site Warranty", description: "cover replacement faulty items", duration: "2 years", Status: "Inactive" },
+    { id: "7", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Inactive" },
+    { id: "8", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Active" },
 ];
 
 
@@ -91,6 +91,7 @@ const Warranty = ({ show, handleClose }) => {
     // }, []);
 
 
+
     const handleExportPDF = () => {
         const table = tableRef.current;
         if (!table) {
@@ -127,6 +128,7 @@ const Warranty = ({ show, handleClose }) => {
     };
 
 
+
     const handleExportExcel = () => {
         const exportData = filteredGiftCards.map((item) => ({
             "Gift Card": item.giftCard,
@@ -148,25 +150,21 @@ const Warranty = ({ show, handleClose }) => {
     const handleCloses = () => setShowModal(false);
 
     const [formData, setFormData] = useState({
-        giftCard: "",
-        customer: "",
-        issuedDate: "",
-        expiryDate: "",
-        amount: "",
-        balance: "",
+        warranty: "",
+        description: "",
+        duration: "",
+        period: "",
         status: false,
     });
 
     const [editFormData, setEditFormData] = useState({
-        giftCard: "",
-        customer: "",
-        issuedDate: "",
-        expiryDate: "",
-        amount: "",
-        balance: "",
+        id: "",
+        warranty: "",
+        description: "",
+        duration: "",
+        period: "",
         status: false,
     });
-    const [CformData, setCformData] = useState({ addcustomers: "" });
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -218,49 +216,49 @@ const Warranty = ({ show, handleClose }) => {
         //     console.error("Error:", err.message);
         // }
     };
-    // const handleEditOpen = (card) => {
-    //     console.log("Selected Gift Card:", card);
-    //     setEditFormData(card);
-    //     setShowEditModal(true);
-    // };
+
     const handleEditOpen = (card) => {
-        setEditFormData({
-            id: card.id,
-            giftCard: card.warranty,
-            customer: card.customer || "",
-            issuedDate: card.issuedDate || "",
-            expiryDate: card.expiryDate || "",
-            amount: card.amount || "",
-            balance: card.balance || "",
-            status: card.status === "Active" || card.status === true,
-        });
-        setShowEditModal(true);
+        console.log("Opening edit modal for card:", card); // Debug log
+        try {
+            const formattedData = toEditForm(card);
+            setEditFormData(formattedData);
+            setShowEditModal(true);
+        } catch (error) {
+            console.error("Error in handleEditOpen:", error);
+        }
     };
 
     const handleEditClose = () => {
         setShowEditModal(false);
         setEditFormData({
             id: "",
-            giftCard: "",
-            customer: "",
-            issuedDate: "",
-            expiryDate: "",
-            amount: "",
-            balance: "",
+            warranty: "",
+            description: "",
+            duration: "",
+            period: "",
             status: false,
         });
     };
 
-    const toEditForm = (row) => ({
-        id: row.id,
-        giftCard: row.giftCard,
-        customer: row.customer,
-        issuedDate: dayjs(row.issuedDate).format("YYYY-MM-DD"),
-        expiryDate: dayjs(row.expiryDate).format("YYYY-MM-DD"),
-        amount: row.amount.toString(),
-        balance: row.balance.toString(),
-        status: row.status === "Active",
-    });
+    const toEditForm = (row) => {
+        console.log("Converting row to edit form:", row); // Debug log
+        return {
+            id: row.id || "",
+            warranty: row.warranty || "",
+            description: row.description || "",
+            duration: row.duration || "",
+            period: "", // Period is not in GiftCardData; set as empty
+            status: row.Status === "Active",
+        };
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setEditFormData((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value,
+        }));
+    };
 
     const toISO = (prettyDate) => {
         const [d, mon, y] = prettyDate.split(" ");
@@ -270,50 +268,65 @@ const Warranty = ({ show, handleClose }) => {
         return `${y}-${m}-${d.padStart(2, "0")}`;
     };
 
-    const handleEditSubmit = async (e) => {
+    // const handleEditSubmit = async (e) => {
+    //     e.preventDefault();
+
+    //     const updatedGiftCardData = {
+    //         ...editFormData,
+    //         issuedDate: dayjs(editFormData.issuedDate).format("YYYY-MM-DD"),
+    //         expiryDate: dayjs(editFormData.expiryDate).format("YYYY-MM-DD"),
+    //         amount: Number(editFormData.amount),
+    //         balance: Number(editFormData.balance),
+    //     };
+
+    //     // try {
+    //     //     const response = await fetch(
+    //     //         `http://localhost:5000/api/giftcard/${editFormData.id}`,
+    //     //         {
+    //     //             method: "PUT",
+    //     //             headers: {
+    //     //                 "Content-Type": "application/json",
+    //     //             },
+    //     //             body: JSON.stringify(updatedGiftCardData),
+    //     //         }
+    //     //     );
+    //     //     console.log("");
+
+    //     //     if (!response.ok) {
+    //     //         throw new Error("Failed to update gift card");
+    //     //     }
+
+    //     //     const data = await response.json();
+    //     //     console.log("Updated Gift Card:", data);
+
+    //     //     setGiftCardDatas((prevData) =>
+    //     //         prevData.map((card) =>
+    //     //             card.id === data.id ? { ...card, ...data } : card
+    //     //         )
+    //     //     );
+
+    //     //     handleEditClose();
+    //     // } catch (err) {
+    //     //     console.error("Error updating gift card:", err);
+    //     //     setError("Failed to update gift card. Please try again.");
+    //     // }
+    // };
+
+
+    const handleEditSubmit = (e) => {
         e.preventDefault();
-
-        const updatedGiftCardData = {
+        console.log("Submitting edit form:", editFormData); // Debug log
+        const updatedWarranty = {
             ...editFormData,
-            issuedDate: dayjs(editFormData.issuedDate).format("YYYY-MM-DD"),
-            expiryDate: dayjs(editFormData.expiryDate).format("YYYY-MM-DD"),
-            amount: Number(editFormData.amount),
-            balance: Number(editFormData.balance),
+            Status: editFormData.status ? "Active" : "Inactive",
         };
-
-        // try {
-        //     const response = await fetch(
-        //         `http://localhost:5000/api/giftcard/${editFormData.id}`,
-        //         {
-        //             method: "PUT",
-        //             headers: {
-        //                 "Content-Type": "application/json",
-        //             },
-        //             body: JSON.stringify(updatedGiftCardData),
-        //         }
-        //     );
-        //     console.log("");
-
-        //     if (!response.ok) {
-        //         throw new Error("Failed to update gift card");
-        //     }
-
-        //     const data = await response.json();
-        //     console.log("Updated Gift Card:", data);
-
-        //     setGiftCardDatas((prevData) =>
-        //         prevData.map((card) =>
-        //             card.id === data.id ? { ...card, ...data } : card
-        //         )
-        //     );
-
-        //     handleEditClose();
-        // } catch (err) {
-        //     console.error("Error updating gift card:", err);
-        //     setError("Failed to update gift card. Please try again.");
-        // }
+        setGiftCardDatas((prevData) =>
+            prevData.map((card) =>
+                card.id === updatedWarranty.id ? updatedWarranty : card
+            )
+        );
+        handleEditClose();
     };
-
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm(
             "Are you sure you want to delete this gift card?"
@@ -396,6 +409,7 @@ const Warranty = ({ show, handleClose }) => {
     useEffect(() => {
         fetchGiftDataref();
     }, []);
+
     const handleShow = () => setShowModal(true);
     return (
         <div className="fn-conatiner">
@@ -541,132 +555,66 @@ const Warranty = ({ show, handleClose }) => {
             </Modal>
             <Modal show={showEditModal} onHide={handleEditClose} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Edit Gift Card</Modal.Title>
+                    <Modal.Title>Edit Warranty</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group controlId="editGiftCard">
+                        <Form.Group controlId="editWarranty">
                             <Form.Label>
-                                Gift Card <span className="text-danger">*</span>
+                                Warranty <span className="text-danger">*</span>
                             </Form.Label>
                             <Form.Control
                                 type="text"
-                                name="giftCard"
-                                value={editFormData.giftCard}
-                                onChange={(e) =>
-                                    setEditFormData({ ...editFormData, giftCard: e.target.value })
-                                }
+                                name="warranty"
+                                value={editFormData.warranty}
+                                onChange={handleEditChange}
                             />
                         </Form.Group>
 
-                        <Form.Group controlId="editCustomer" className="mt-3">
-                            <div className="d-flex justify-content-between align-items-center">
-                                <Form.Label className="mb-0">
-                                    Customer <span className="text-danger">*</span>
-                                </Form.Label>
-                                <Button
-                                    variant="link"
-                                    className="text-warning p-0 text-decoration-none d-flex align-items-center gap-1"
-                                >
-                                    <FiPlusCircle style={{ fontSize: "1.1rem" }} />
-                                    Add New
-                                </Button>
-                            </div>
-                            {/* <Form.Select
-                                name="customer"
-                                value={editFormData.customer}
-                                onChange={(e) =>
-                                    setEditFormData({ ...editFormData, customer: e.target.value })
-                                }
-                                className="mt-1"
-                            >
-                                <option value="">Select</option>
-                                {Customers.map((c) => (
-                                    <option key={c._id} value={c._id}>
-                                        {c.addcustomers}
-                                    </option>
-                                ))}
-                            </Form.Select> */}
+                        <Row className="mt-3">
+                            <Col>
+                                <Form.Group controlId="editDuration">
+                                    <Form.Label>
+                                        Duration <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="duration"
+                                        value={editFormData.duration}
+                                        onChange={handleEditChange}
+                                        placeholder="e.g. 2 years"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="editPeriod">
+                                    <Form.Label>
+                                        Period <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Select
+                                        name="period"
+                                        value={editFormData.period}
+                                        onChange={handleEditChange}
+                                    >
+                                        <option value="">Select</option>
+                                        <option value="Day">Day(s)</option>
+                                        <option value="Month">Month(s)</option>
+                                        <option value="Year">Year(s)</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Form.Group controlId="editDescription" className="mt-3">
+                            <Form.Label>
+                                Description <span className="text-danger">*</span>
+                            </Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                name="description"
+                                value={editFormData.description}
+                                onChange={handleEditChange}
+                            />
                         </Form.Group>
-
-                        <Row className="mt-3">
-                            <Col>
-                                <Form.Group controlId="editIssuedDate">
-                                    <Form.Label>
-                                        Issued Date <span className="text-danger">*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="issuedDate"
-                                        value={editFormData.issuedDate}
-                                        onChange={(e) =>
-                                            setEditFormData({
-                                                ...editFormData,
-                                                issuedDate: e.target.value,
-                                            })
-                                        }
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col>
-                                <Form.Group controlId="editExpiryDate">
-                                    <Form.Label>
-                                        Expiry Date <span className="text-danger">*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="expiryDate"
-                                        value={editFormData.expiryDate}
-                                        onChange={(e) =>
-                                            setEditFormData({
-                                                ...editFormData,
-                                                expiryDate: e.target.value,
-                                            })
-                                        }
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-
-                        <Row className="mt-3">
-                            <Col>
-                                <Form.Group controlId="editAmount">
-                                    <Form.Label>
-                                        Amount <span className="text-danger">*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="amount"
-                                        value={editFormData.amount}
-                                        onChange={(e) =>
-                                            setEditFormData({
-                                                ...editFormData,
-                                                amount: e.target.value,
-                                            })
-                                        }
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col>
-                                <Form.Group controlId="editBalance">
-                                    <Form.Label>
-                                        Balance <span className="text-danger">*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="balance"
-                                        value={editFormData.balance}
-                                        onChange={(e) =>
-                                            setEditFormData({
-                                                ...editFormData,
-                                                balance: e.target.value,
-                                            })
-                                        }
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-
                         <Form.Group
                             controlId="editStatus"
                             className="mt-4 d-flex align-items-center justify-content-between"
@@ -676,9 +624,7 @@ const Warranty = ({ show, handleClose }) => {
                                 type="switch"
                                 name="status"
                                 checked={editFormData.status}
-                                onChange={(e) =>
-                                    setEditFormData({ ...editFormData, status: e.target.checked })
-                                }
+                                onChange={handleEditChange}
                             />
                         </Form.Group>
                     </Form>
