@@ -426,9 +426,6 @@ const Warranty = ({ show, handleClose }) => {
         setShowDeleteModal(false);
         setPendingDeleteId(null);
     };
-
-
-
     const handleShow = () => setShowModal(true);
     return (
         <div className="fn-conatiner">
