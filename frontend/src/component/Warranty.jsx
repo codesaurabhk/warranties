@@ -1,4 +1,3 @@
-
 import React, { useMemo, useRef, useState } from "react";
 
 import { BiSolidFilePdf } from "react-icons/bi";
@@ -21,16 +20,6 @@ import { useEffect } from "react";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
 
-const GiftCardData = [
-    { id: "1", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Inactive" },
-    { id: "2", warranty: "On-site Warranty", description: "cover replacement faulty items", duration: "2 years", Status: "Inactive" },
-    { id: "3", warranty: "On-site Warranty", description: "cover replacement of faculty items", duration: "2 years", Status: "Inactive" },
-    { id: "4", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Inactive" },
-    { id: "5", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Inactive" },
-    { id: "6", warranty: "On-site Warranty", description: "cover replacement faulty items", duration: "2 years", Status: "Inactive" },
-    { id: "7", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Inactive" },
-    { id: "8", warranty: "On-site Warranty", description: "cover replacement of faulty items", duration: "2 years", Status: "Active" },
-];
 
 
 
@@ -38,10 +27,11 @@ const Warranty = ({ show, handleClose }) => {
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [GiftCardDatas, setGiftCardDatas] = useState([]);
+    const [Warrantydata, setWarrantydata] = useState([]);
     const [Error, setError] = useState(null);
     const tableRef = useRef(null);
     const [Customers, setCustomers] = useState([]);
-    const [showCustomerModal, setShowCustomerModal] = useState(false);
+
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [sortOption, setSortOption] = useState("all");
@@ -50,48 +40,29 @@ const Warranty = ({ show, handleClose }) => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
+    useEffect(() => {
+        const fetchGiftData = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/api/warranty/");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch giftcard data");
+                }
+                const data = await response.json();
+                console.log(data);
+                const updatedData = data.map((item) => ({
+                    ...item,
+                    id: item._id,
+                }));
+                setWarrantydata(updatedData);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
 
+        fetchGiftData();
+    }, []);
 
-
-
-
-    // useEffect(() => {
-    //     const fetchGiftData = async () => {
-    //         try {
-    //             const response = await fetch("http://localhost:5000/api/giftcard/");
-    //             if (!response.ok) {
-    //                 throw new Error("Failed to fetch giftcard data");
-    //             }
-    //             const data = await response.json();
-    //             console.log(data);
-    //             const updatedData = data.map((item) => ({
-    //                 ...item,
-    //                 id: item._id,
-    //             }));
-    //             setGiftCardDatas(updatedData);
-    //         } catch (err) {
-    //             setError(err.message);
-    //         }
-    //     };
-
-    //     fetchGiftData();
-    // }, []);
-
-    // useEffect(() => {
-    //     const fetchCustomers = async () => {
-    //         try {
-    //             const response = await fetch("http://localhost:5000/api/customers/");
-    //             if (!response.ok) {
-    //                 throw new Error("Failed to fetch Customers data");
-    //             }
-    //             const data = await response.json();
-    //             setCustomers(data);
-    //         } catch (err) {
-    //             setError(err.message);
-    //         }
-    //     };
-    //     fetchCustomers();
-    // }, []);
+   
 
 
 
@@ -723,7 +694,7 @@ const Warranty = ({ show, handleClose }) => {
 
                         <tbody>
 
-                            {GiftCardData
+                            {Warrantydata
                                 // .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
                                 .map((item, idx) => (
                                     <tr key={idx}>
