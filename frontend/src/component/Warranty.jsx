@@ -47,6 +47,9 @@ const Warranty = ({ show, handleClose }) => {
     const [sortOption, setSortOption] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState(null);
+
 
 
 
@@ -409,6 +412,22 @@ const Warranty = ({ show, handleClose }) => {
     useEffect(() => {
         fetchGiftDataref();
     }, []);
+    const openDeleteModal = (id) => {
+        setPendingDeleteId(id);
+        setShowDeleteModal(true);
+    };
+    const confirmDelete = async () => {
+        const id = pendingDeleteId;
+        if (!id) return;
+
+        // 🔴 call your API or just filter the local array
+        setGiftCardDatas(prev => prev.filter(card => card.id !== id));
+
+        setShowDeleteModal(false);
+        setPendingDeleteId(null);
+    };
+
+
 
     const handleShow = () => setShowModal(true);
     return (
@@ -638,9 +657,28 @@ const Warranty = ({ show, handleClose }) => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+                <Modal.Body className="text-center py-4">
+                    {/* little red icon on top */}
+                    <div className="d-flex justify-content-center mb-3">
+                        <div className="bg-danger bg-opacity-10 rounded-circle p-3">
+                            <RiDeleteBinLine size={28} className="text-danger" />
+                        </div>
+                    </div>
 
+                    <h5 className="fw-bold">Delete Warranty</h5>
+                    <p>Are you sure you want to delete warranty?</p>
 
-
+                    <div className="d-flex justify-content-center gap-3 mt-4">
+                        <Button variant="dark" onClick={() => setShowDeleteModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="warning" onClick={confirmDelete}>
+                            Yes Delete
+                        </Button>
+                    </div>
+                </Modal.Body>
+            </Modal>
             <div className="container-mn">
                 <div className="d-flex justify-content-between align-items-center p-3 ">
                     <div>
@@ -703,7 +741,7 @@ const Warranty = ({ show, handleClose }) => {
                                         <td>{`${item.duration} ${item.period}`}</td>
                                         <td>
                                             <span
-                                                className={`badge ${item.Status == "Active" ? "badge-success" : "badge-danger"
+                                                className={`badge ${item.Status === "Active" ? "badge-success" : "badge-danger"
                                                     }`}
                                             >
                                                 {/* {item.Status ? "Active" : "Inactive"} */}
@@ -722,7 +760,7 @@ const Warranty = ({ show, handleClose }) => {
                                                 >
                                                     <FiEdit />
                                                 </button>
-                                                <button onClick={() => handleDelete(item._id)}>
+                                                <button onClick={() => openDeleteModal(item.id)}>
                                                     <RiDeleteBinLine />
                                                 </button>
                                             </div>
