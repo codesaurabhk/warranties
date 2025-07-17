@@ -18,7 +18,7 @@ const WarrantySchema = new mongoose.Schema({
         enum: ["Day", "Month", "Year"],
         required: true
     },
-    Status: {
+    status: {
         type: Boolean,
         default: false
     },

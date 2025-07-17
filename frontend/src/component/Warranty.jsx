@@ -11,7 +11,6 @@ import { IoSettingsSharp } from "react-icons/io5";
 import { Modal, Form, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { GoChevronLeft, GoChevronRight } from "react-icons/go";
-import dayjs from "dayjs";
 import "./Warranty.css";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -222,7 +221,7 @@ const Warranty = ({ show, handleClose }) => {
             setWarrantydata((prev) => prev.filter((item) => item.id !== id));
             setShowDeleteModal(false);
             setPendingDeleteId(null);
-            alert("Warranty deleted successfully");
+            // alert("Warranty deleted successfully");
         } catch (err) {
             console.error("Error deleting warranty:", err);
             setError("Failed to delete the warranty. Please try again.");
