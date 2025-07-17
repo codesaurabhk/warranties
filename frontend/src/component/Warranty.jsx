@@ -62,7 +62,7 @@ const Warranty = ({ show, handleClose }) => {
         fetchGiftData();
     }, []);
 
-   
+
 
 
 
@@ -164,31 +164,31 @@ const Warranty = ({ show, handleClose }) => {
         //     return;
         // }
 
-        // try {
-        //     const response = await fetch("http://localhost:5000/api/giftcard/", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         body: JSON.stringify(formData),
-        //     });
+        try {
+            const response = await fetch("http://localhost:5000/api/warranty/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
 
-        //     if (!response.ok) {
-        //         const errorData = await response.json();
-        //         console.error("API error:", errorData);
-        //         throw new Error(errorData.message || "Failed to add gift card");
-        //     }
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("API error:", errorData);
+                throw new Error(errorData.message || "Failed to add Warranty ");
+            }
 
-        //     const data = await response.json();
-        //     console.log("New Gift Card Added:", data);
+            const data = await response.json();
+            console.log("New Waranty Added:", data);
 
-        //     setGiftCardDatas((prevData) => [...prevData, data]);
+            setGiftCardDatas((prevData) => [...prevData, data]);
 
-        //     handleClose();
-        // } catch (err) {
-        //     setError(err.message);
-        //     console.error("Error:", err.message);
-        // }
+            handleClose();
+        } catch (err) {
+            setError(err.message);
+            console.error("Error:", err.message);
+        }
     };
 
     const handleEditOpen = (card) => {
@@ -242,87 +242,73 @@ const Warranty = ({ show, handleClose }) => {
         return `${y}-${m}-${d.padStart(2, "0")}`;
     };
 
-    // const handleEditSubmit = async (e) => {
-    //     e.preventDefault();
-
-    //     const updatedGiftCardData = {
-    //         ...editFormData,
-    //         issuedDate: dayjs(editFormData.issuedDate).format("YYYY-MM-DD"),
-    //         expiryDate: dayjs(editFormData.expiryDate).format("YYYY-MM-DD"),
-    //         amount: Number(editFormData.amount),
-    //         balance: Number(editFormData.balance),
-    //     };
-
-    //     // try {
-    //     //     const response = await fetch(
-    //     //         `http://localhost:5000/api/giftcard/${editFormData.id}`,
-    //     //         {
-    //     //             method: "PUT",
-    //     //             headers: {
-    //     //                 "Content-Type": "application/json",
-    //     //             },
-    //     //             body: JSON.stringify(updatedGiftCardData),
-    //     //         }
-    //     //     );
-    //     //     console.log("");
-
-    //     //     if (!response.ok) {
-    //     //         throw new Error("Failed to update gift card");
-    //     //     }
-
-    //     //     const data = await response.json();
-    //     //     console.log("Updated Gift Card:", data);
-
-    //     //     setGiftCardDatas((prevData) =>
-    //     //         prevData.map((card) =>
-    //     //             card.id === data.id ? { ...card, ...data } : card
-    //     //         )
-    //     //     );
-
-    //     //     handleEditClose();
-    //     // } catch (err) {
-    //     //     console.error("Error updating gift card:", err);
-    //     //     setError("Failed to update gift card. Please try again.");
-    //     // }
-    // };
-
-
-    const handleEditSubmit = (e) => {
+    const handleEditSubmit = async (e) => {
         e.preventDefault();
-        console.log("Submitting edit form:", editFormData); // Debug log
-        const updatedWarranty = {
+
+        const updatedGiftCardData = {
             ...editFormData,
-            Status: editFormData.status ? "Active" : "Inactive",
+            // issuedDate: dayjs(editFormData.issuedDate).format("YYYY-MM-DD"),
+            // expiryDate: dayjs(editFormData.expiryDate).format("YYYY-MM-DD"),
+            // amount: Number(editFormData.amount),
+            // balance: Number(editFormData.balance),
         };
-        setGiftCardDatas((prevData) =>
-            prevData.map((card) =>
-                card.id === updatedWarranty.id ? updatedWarranty : card
-            )
-        );
-        handleEditClose();
+
+        try {
+            const response = await fetch(
+                `http://localhost:5000/api/warranty/${editFormData.id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(updatedGiftCardData),
+                }
+            );
+            console.log("");
+
+            if (!response.ok) {
+                throw new Error("Failed to update gift card");
+            }
+
+            const data = await response.json();
+            console.log("Updated Gift Card:", data);
+
+            setGiftCardDatas((prevData) =>
+                prevData.map((card) =>
+                    card.id === data.id ? { ...card, ...data } : card
+                )
+            );
+
+            handleEditClose();
+        } catch (err) {
+            console.error("Error updating gift card:", err);
+            setError("Failed to update gift card. Please try again.");
+        }
     };
+
+
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm(
             "Are you sure you want to delete this gift card?"
         );
         if (!confirmDelete) return;
 
-        // try {
-        //     const response = await fetch(`http://localhost:5000/api/giftcard/${id}`, {
-        //         method: "DELETE",
-        //     });
+        try {
+            const response = await fetch(`http://localhost:5000/api/warranty/${id}`, {
+                method: "DELETE",
+            });
 
-        //     if (!response.ok) {
-        //         throw new Error("Failed to delete the gift card");
-        //     }
-        //     setGiftCardDatas((prevData) =>
-        //         prevData.filter((card) => card._id !== id)
-        //     );
-        //     alert("Gift card deleted successfully");
-        // } catch (err) {
-        //     console.error("Error deleting gift card:", err);
-        //     setError("Failed to delete the gift card. Please try again.");
-        // }
+            if (!response.ok) {
+                throw new Error("Failed to delete the gift card");
+            }
+            setGiftCardDatas((prevData) =>
+                prevData.filter((card) => card._id !== id)
+            );
+            alert("Warranty deleted successfully");
+        } catch (err) {
+            console.error("Error deleting gift card:", err);
+            setError("Failed to delete the gift card. Please try again.");
+        }
     };
 
     const getCustomerName = (id) =>
@@ -365,7 +351,7 @@ const Warranty = ({ show, handleClose }) => {
     const fetchGiftDataref = async () => {
         // try {
         //     setGiftCardDatas([]);
-        //     const response = await fetch("http://localhost:5000/api/giftcard/");
+        //     const response = await fetch("http://localhost:5000/api/warranty/");
         //     if (!response.ok) {
         //         throw new Error("Failed to fetch giftcard data");
         //     }
@@ -449,14 +435,14 @@ const Warranty = ({ show, handleClose }) => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group controlId="giftCard">
+                        <Form.Group controlId="warranty">
                             <Form.Label>
                                 Warranty <span className="text-danger">*</span>
                             </Form.Label>
                             <Form.Control
                                 type="text"
                                 placeholder="Enter warranty "
-                                name="giftCard"
+                                name="warranty"
                                 value={formData.warranty}
                                 onChange={handleChange}
                             />
@@ -464,7 +450,7 @@ const Warranty = ({ show, handleClose }) => {
 
                         <Row className="mt-3">
                             <Col>
-                                <Form.Group controlId="issuedDate">
+                                <Form.Group controlId="duration">
                                     <Form.Label>
                                         Duration <span className="text-danger">*</span>
                                     </Form.Label>
@@ -499,15 +485,15 @@ const Warranty = ({ show, handleClose }) => {
 
                         <Row className="mt-3">
                             <Col>
-                                <Form.Group controlId="amount">
+                                <Form.Group controlId="description">
                                     <Form.Label>
                                         Description <span className="text-danger">*</span>
                                     </Form.Label>
                                     <Form.Control
                                         as="textarea"
-                                        name="amount"
+                                        name="description"
                                         // rows={1}
-                                        value={formData.amount}
+                                        value={formData.description}
                                         onChange={handleChange}
                                     />
 
@@ -641,7 +627,7 @@ const Warranty = ({ show, handleClose }) => {
                         <Button variant="dark" onClick={() => setShowDeleteModal(false)}>
                             Cancel
                         </Button>
-                        <Button variant="warning" onClick={confirmDelete}>
+                        <Button variant="warning" onClick={() => handleDelete(item._id)}>
                             Yes Delete
                         </Button>
                     </div>
@@ -709,11 +695,11 @@ const Warranty = ({ show, handleClose }) => {
                                         <td>{`${item.duration} ${item.period}`}</td>
                                         <td>
                                             <span
-                                                className={`badge ${item.Status === "Active" ? "badge-success" : "badge-danger"
+                                                className={`badge ${item.Status ? "badge-success" : "badge-danger"
                                                     }`}
                                             >
-                                                {/* {item.Status ? "Active" : "Inactive"} */}
-                                                {item.Status}
+                                                {item.Status ? "Active" : "Inactive"}
+
                                             </span>
                                         </td>
 
