@@ -15,13 +15,21 @@ const WarrantySchema = new mongoose.Schema({
     },
     period: {
         type: String,
-        enum: ["Day", "Month", "Year"],
+        enum: ["Day", "Week", "Month", "Year"],
         required: true
     },
     status: {
         type: Boolean,
         default: false
     },
+    toDate: {
+        type: Date,
+        required: true,
+    },
+    fromDate: {
+        type: Date,
+        required: true,
+    }
 
 },
     {

@@ -11,6 +11,7 @@ import { IoSettingsSharp } from "react-icons/io5";
 import { Modal, Form, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { GoChevronLeft, GoChevronRight } from "react-icons/go";
+import dayjs from "dayjs";
 import "./Warranty.css";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -343,9 +344,41 @@ const Warranty = ({ show, handleClose }) => {
                                     >
                                         <option value="">Select</option>
                                         <option value="Day">Day(s)</option>
+                                        <option value="Week">Week(s)</option>
                                         <option value="Month">Month(s)</option>
                                         <option value="Year">Year(s)</option>
                                     </Form.Select>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        {/* //to date */}
+                        <Row className="mt-3">
+                            <Col>
+                                <Form.Group controlId="fromDate">
+                                    <Form.Label>
+                                        From Date  <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="Date"
+                                        min={1}
+                                        name="fromDate"
+                                        value={formData.fromDate}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="toDate">
+                                    <Form.Label>
+                                        To Date  <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="Date"
+                                        min={1}
+                                        name="toDate"
+                                        value={formData.toDate}
+                                        onChange={handleChange}
+                                    />
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -434,6 +467,36 @@ const Warranty = ({ show, handleClose }) => {
                                         <option value="Month">Month(s)</option>
                                         <option value="Year">Year(s)</option>
                                     </Form.Select>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row className="mt-3">
+                            <Col>
+                                <Form.Group controlId="fromDate">
+                                    <Form.Label>
+                                        From Date  <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="Date"
+                                        min={1}
+                                        name="fromDate"
+                                        value={editFormData.fromDate}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="toDate">
+                                    <Form.Label>
+                                        To Date  <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="Date"
+                                        min={1}
+                                        name="toDate"
+                                        value={editFormData.toDate}
+                                        onChange={handleChange}
+                                    />
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -530,6 +593,8 @@ const Warranty = ({ show, handleClose }) => {
                                 <th scope="col">Warranty</th>
                                 <th scope="col">Description</th>
                                 <th scope="col">Duration</th>
+                                <th scope="col">To Date</th>
+                                <th scope="col">From Date</th>
                                 <th scope="col">Status</th>
                                 <th></th>
                             </tr>
@@ -545,6 +610,8 @@ const Warranty = ({ show, handleClose }) => {
                                         <td>{item.warranty}</td>
                                         <td>{item.description}</td>
                                         <td>{`${item.duration} ${item.period}`}</td>
+                                        <td> {dayjs(item.toDate).format("YYYY-MM-DD")}</td>
+                                        <td>{dayjs(item.fromDate).format("YYYY-MM-DD")}</td>
                                         <td>
                                             {/* CHANGE: Fixed status badge to use item.status */}
                                             <span
