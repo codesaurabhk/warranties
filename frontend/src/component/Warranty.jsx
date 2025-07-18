@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { BiSolidFilePdf } from "react-icons/bi";
 import { HiOutlineRefresh } from "react-icons/hi";
 import { IoIosArrowUp } from "react-icons/io";
@@ -16,6 +16,8 @@ import "./Warranty.css";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
+import axios from "axios";
+
 
 
 
@@ -34,6 +36,8 @@ const calculateDuration = (fromDate, toDate) => {
     return `${(totalMonths / 12).toFixed(1)} years`;
 };
 
+
+
 const Warranty = ({ show, handleClose }) => {
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -47,6 +51,44 @@ const Warranty = ({ show, handleClose }) => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [pendingDeleteId, setPendingDeleteId] = useState(null);
+    // const [fetchWarranties, setfetchWarranties] = useState("");
+    const [warranties, setWarranties] = useState([]);
+    const [FilteredWarranties, setFilteredWarranties] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+
+
+
+    const fetchWarranties = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch("http://localhost:5000/api/warranty/");
+            if (!res.ok) {
+                throw new Error("Failed to fetch Warranty data");
+            }
+
+            const data = await res.json(); // ✅ Await the response
+
+            const updatedData = data.map((item) => ({
+                ...item,
+                id: item._id,
+            }));
+
+            setWarranties(updatedData); // ✅ Set processed data
+            // console.log("Updated Data:", updatedData);
+            setFilteredWarranties(updatedData); // Optional: if you're using filters
+        } catch (err) {
+            console.error("Error fetching warranties:", err);
+            setError("Failed to fetch warranties");
+        } finally {
+            setLoading(false); // ✅ Always stop loading
+        }
+    };
+
+    useEffect(() => {
+        fetchWarranties();
+    }, []);
+
 
     // CHANGE: Kept single fetch function and removed fetchGiftDataref
     useEffect(() => {
@@ -69,6 +111,8 @@ const Warranty = ({ show, handleClose }) => {
         };
         fetchGiftData();
     }, []);
+
+
 
     const handleExportPDF = () => {
         const table = tableRef.current;
@@ -291,6 +335,13 @@ const Warranty = ({ show, handleClose }) => {
 
 
 
+
+
+
+
+
+
+
     const handleShow = () => setShowModal(true);
 
 
@@ -325,7 +376,10 @@ const Warranty = ({ show, handleClose }) => {
                         variant="light"
                         aria-label="Refresh"
                         className="text-secondary"
-                        onClick={() => fetchGiftData()}
+                        onClick={() => {
+                            // console.log("Refresh clicked");
+                            fetchWarranties();
+                        }}
                     >
                         <HiOutlineRefresh size={20} />
                     </Button>
