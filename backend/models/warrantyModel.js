@@ -9,15 +9,10 @@ const WarrantySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    duration: {
-        type: Number,
-        required: true,
-    },
-    period: {
-        type: String,
-        enum: ["Day", "Week", "Month", "Year"],
-        required: true
-    },
+    // duration: {
+    //     type: String,
+    //     required: true,
+    // },
     status: {
         type: Boolean,
         default: false

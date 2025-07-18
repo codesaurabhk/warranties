@@ -17,6 +17,23 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
 
+
+
+
+const calculateDuration = (fromDate, toDate) => {
+    if (!fromDate || !toDate) return "";
+
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+
+    let years = to.getFullYear() - from.getFullYear();
+    let months = to.getMonth() - from.getMonth();
+
+    const totalMonths = years * 12 + months;
+
+    return `${(totalMonths / 12).toFixed(1)} years`;
+};
+
 const Warranty = ({ show, handleClose }) => {
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -89,7 +106,9 @@ const Warranty = ({ show, handleClose }) => {
         const exportData = filteredWarranties.map((item) => ({
             Warranty: item.warranty,
             Description: item.description,
-            Duration: `${item.duration} ${item.period}`,
+            From: item.fromDate ? new Date(item.fromDate).toLocaleDateString() : "",
+            To: item.toDate ? new Date(item.toDate).toLocaleDateString() : "",
+            Duration: item.duration || "",
             Status: item.status ? "Active" : "Inactive",
         }));
         const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -104,7 +123,8 @@ const Warranty = ({ show, handleClose }) => {
         warranty: "",
         description: "",
         duration: "",
-        period: "",
+        fromDate: "",
+        toDate: "",
         status: false,
     });
 
@@ -113,7 +133,8 @@ const Warranty = ({ show, handleClose }) => {
         warranty: "",
         description: "",
         duration: "",
-        period: "",
+        fromDate: "",
+        toDate: "",
         status: false,
     });
 
@@ -158,7 +179,8 @@ const Warranty = ({ show, handleClose }) => {
             warranty: card.warranty || "",
             description: card.description || "",
             duration: card.duration || "",
-            period: card.period || "",
+            fromDate: card.formDate || "",
+            toDate: card.toDate || "",
             status: card.status || false,
         });
         setShowEditModal(true);
@@ -171,18 +193,36 @@ const Warranty = ({ show, handleClose }) => {
             warranty: "",
             description: "",
             duration: "",
-            period: "",
+            fromDate: "",
+            toDate: "",
             status: false,
         });
     };
 
     const handleEditChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setEditFormData((prev) => ({
-            ...prev,
-            [name]: type === "checkbox" ? checked : value,
-        }));
+        const { name, value } = e.target;
+
+        const updatedForm = {
+            ...editFormData,
+            [name]: value,
+        };
+
+        // 👉 New: auto-calculate duration from fromDate and toDate
+        if ((name === "fromDate" || name === "toDate") && updatedForm.fromDate && updatedForm.toDate) {
+            const from = new Date(updatedForm.fromDate);
+            const to = new Date(updatedForm.toDate);
+
+            const yearsDiff = to.getFullYear() - from.getFullYear();
+            const monthsDiff = to.getMonth() - from.getMonth();
+            const totalMonths = yearsDiff * 12 + monthsDiff;
+
+            const durationInYears = (totalMonths / 12).toFixed(1);
+            updatedForm.duration = `${durationInYears} years`; // 👉 New line
+        }
+
+        setEditFormData(updatedForm);
     };
+
 
     // CHANGE: Updated handleEditSubmit to update Warrantydata
     const handleEditSubmit = async (e) => {
@@ -249,7 +289,10 @@ const Warranty = ({ show, handleClose }) => {
         setShowDeleteModal(true);
     };
 
+
+
     const handleShow = () => setShowModal(true);
+
 
     return (
         <div className="fn-conatiner">
@@ -316,41 +359,7 @@ const Warranty = ({ show, handleClose }) => {
                                 onChange={handleChange}
                             />
                         </Form.Group>
-                        <Row className="mt-3">
-                            <Col>
-                                <Form.Group controlId="duration">
-                                    <Form.Label>
-                                        Duration <span className="text-danger">*</span>
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        min={1}
-                                        name="duration"
-                                        value={formData.duration}
-                                        onChange={handleChange}
-                                        placeholder="e.g. 2"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col>
-                                <Form.Group controlId="period">
-                                    <Form.Label>
-                                        Period <span className="text-danger">*</span>
-                                    </Form.Label>
-                                    <Form.Select
-                                        name="period"
-                                        value={formData.period}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="">Select</option>
-                                        <option value="Day">Day(s)</option>
-                                        <option value="Week">Week(s)</option>
-                                        <option value="Month">Month(s)</option>
-                                        <option value="Year">Year(s)</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                        </Row>
+
                         {/* //to date */}
                         <Row className="mt-3">
                             <Col>
@@ -382,6 +391,21 @@ const Warranty = ({ show, handleClose }) => {
                                 </Form.Group>
                             </Col>
                         </Row>
+                        {/* <Row className="mt-3">
+                            <Col>
+                                <Form.Group controlId="duration">
+                                    <Form.Label>
+                                        Duration <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="duration"
+                                        value={editFormData.duration}
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row> */}
                         <Row className="mt-3">
                             <Col>
                                 <Form.Group controlId="description">
@@ -448,25 +472,8 @@ const Warranty = ({ show, handleClose }) => {
                                         name="duration"
                                         value={editFormData.duration}
                                         onChange={handleEditChange}
-                                        placeholder="e.g. 2"
+                                        readOnly
                                     />
-                                </Form.Group>
-                            </Col>
-                            <Col>
-                                <Form.Group controlId="editPeriod">
-                                    <Form.Label>
-                                        Period <span className="text-danger">*</span>
-                                    </Form.Label>
-                                    <Form.Select
-                                        name="period"
-                                        value={editFormData.period}
-                                        onChange={handleEditChange}
-                                    >
-                                        <option value="">Select</option>
-                                        <option value="Day">Day(s)</option>
-                                        <option value="Month">Month(s)</option>
-                                        <option value="Year">Year(s)</option>
-                                    </Form.Select>
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -481,7 +488,7 @@ const Warranty = ({ show, handleClose }) => {
                                         min={1}
                                         name="fromDate"
                                         value={editFormData.fromDate}
-                                        onChange={handleChange}
+                                        onChange={handleEditChange}
                                     />
                                 </Form.Group>
                             </Col>
@@ -495,7 +502,7 @@ const Warranty = ({ show, handleClose }) => {
                                         min={1}
                                         name="toDate"
                                         value={editFormData.toDate}
-                                        onChange={handleChange}
+                                        onChange={handleEditChange}
                                     />
                                 </Form.Group>
                             </Col>
@@ -534,7 +541,6 @@ const Warranty = ({ show, handleClose }) => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            {/* CHANGE: Fixed delete modal to use pendingDeleteId */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Body className="text-center py-4">
                     <div className="d-flex justify-content-center mb-3">
@@ -609,7 +615,8 @@ const Warranty = ({ show, handleClose }) => {
                                         </th>
                                         <td>{item.warranty}</td>
                                         <td>{item.description}</td>
-                                        <td>{`${item.duration} ${item.period}`}</td>
+                                        {/* <td>{`${item.duration}`}</td> */}
+                                        <td>{calculateDuration(item.fromDate, item.toDate)}</td>
                                         <td> {dayjs(item.toDate).format("YYYY-MM-DD")}</td>
                                         <td>{dayjs(item.fromDate).format("YYYY-MM-DD")}</td>
                                         <td>
